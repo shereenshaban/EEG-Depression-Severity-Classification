@@ -216,3 +216,65 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+
+# ================================
+# Raw EEG and participant data
+# ================================
+
+*.xlsx
+*.xls
+
+Eyes-closed EEG.xlsx
+Eyes-open EEG.xlsx
+Participant characteristics.xlsx
+
+
+# ================================
+# Derived datasets and predictions
+# ================================
+
+final_df.csv
+final_participant_predictions.csv
+
+
+# ================================
+# Python cache files
+# ================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+
+# ================================
+# Jupyter Notebook temporary files
+# ================================
+
+.ipynb_checkpoints/
+
+
+# ================================
+# Virtual environments
+# ================================
+
+.venv/
+venv/
+env/
+
+
+# ================================
+# Streamlit temporary files
+# ================================
+
+.streamlit/
+
+
+# ================================
+# Operating system files
+# ================================
+
+.DS_Store
+Thumbs.db
+desktop.ini
