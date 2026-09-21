@@ -211,6 +211,19 @@ Future work should evaluate larger and more diverse cohorts, external validation
 Dataset and Methodological References
 The adolescent resting-state EEG dataset and its associated publication are cited below. The original public notebook was used as a methodological reference, but the present project adapts the workflow to a three-class adolescent dataset and applies participant-level leakage controls.
 
+### Local Data Requirement
+
+The raw EEG spreadsheets, participant-characteristics file, and processed CSV datasets are not included in this public repository. These files are excluded through `.gitignore` because they contain research and participant-related information.
+
+To run the Streamlit demo locally, place the authorized processed dataset named `final_df.csv` inside the `Streamlit_Demo` folder:
+
+```text
+Streamlit_Demo/
+├── app.py
+├── requirements.txt
+├── README.md
+└── final_df.csv
+
 
 References
 [1] Resting-state EEG datasets of adolescents with mild, minimal, and moderate depression
