@@ -210,12 +210,8 @@ The results do not establish diagnostic validity, clinical utility, or causality
 Future work should evaluate larger and more diverse cohorts, external validation datasets, probability calibration, subgroup robustness, alternative EEG representations, and interpretable model explanations.
 Dataset and Methodological References
 The adolescent resting-state EEG dataset and its associated publication are cited below. The original public notebook was used as a methodological reference, but the present project adapts the workflow to a three-class adolescent dataset and applies participant-level leakage controls.
-Author
-Shereen Shaban
 
-Computer Science and Artificial Intelligence Student
 
-Helwan University
 References
 [1] Resting-state EEG datasets of adolescents with mild, minimal, and moderate depression
 
