@@ -6,13 +6,13 @@ A research-oriented machine-learning project for classifying **three levels of d
 
 ## Project Objective
 
-The objective is to investigate whether objective EEG-derived features can support the classification of three depression-severity categories:
+The objective of this project is to investigate whether objective EEG-derived features can support the classification of three depression-severity categories:
 
 - **Minimal depression** — Group 1
 - **Mild depression** — Group 2
 - **Moderate depression** — Group 3
 
-The current modeling pipeline uses the **eyes-closed EEG condition**. Participant questionnaire scores, including BDI-II and PHQ-9, are used only for metadata inspection and label validation. They are deliberately excluded from the predictive feature matrix so that questionnaire information does not leak into the EEG classifier.
+The current modeling pipeline uses the **resting-state eyes-closed EEG condition**. Participant questionnaire scores, including BDI-II and PHQ-9, are used only for metadata inspection and label validation. They are not used as predictive inputs to the EEG model.
 
 ## Dataset Summary
 
@@ -28,11 +28,11 @@ The current modeling pipeline uses the **eyes-closed EEG condition**. Participan
 | Moderate group | 28 participants |
 | Held-out test set | 17 participants |
 
-The participant-level design is essential. Multiple rows or segments from the same participant must not be distributed between training and testing because this can create participant-level leakage and produce overly optimistic performance estimates.
+The modeling unit is one participant. This is important because observations from the same participant must not be distributed across both the training and test sets. Such a split could introduce participant-level data leakage and produce overly optimistic results.
 
 ## Main Result
 
-The selected model was an **Extra Trees classifier** within a leakage-controlled scikit-learn pipeline. On one stratified held-out test split containing 17 participants, it achieved:
+The selected model was an **Extra Trees classifier** within a leakage-controlled scikit-learn pipeline. On one stratified held-out test split containing 17 participants, the model achieved:
 
 | Metric | Held-out test result |
 |---|---:|
@@ -55,24 +55,24 @@ The class-wise F1-scores were:
 
 ## Stability Analysis
 
-Repeated stratified cross-validation was used to examine how performance changes across participant splits. This analysis is reported separately from the final held-out test result.
+Repeated stratified cross-validation was used to examine how model performance changes across participant splits. This analysis is reported separately from the final held-out test result.
 
 | Metric | Mean | Standard deviation |
 |---|---:|---:|
 | Balanced accuracy | 52.1% | 11.3 percentage points |
 | Macro F1-score | 50.6% | 11.8 percentage points |
 
-The difference between the held-out test result and the repeated-split stability estimate demonstrates why a single accuracy value should not be reported without uncertainty or variability information. The small sample size makes the estimates sensitive to the particular participants included in each split.
+The difference between the held-out test result and the repeated-split stability estimate shows why a single test accuracy should not be reported without considering performance variability. Because the dataset is small, the estimates can change substantially when the participant split changes.
 
 ## Methodology
 
-The project is organized into two main analytical stages.
+The project includes exploratory data analysis, preprocessing, model training, model evaluation, and an interactive Streamlit demonstration.
 
 ### Exploratory Data Analysis and Preprocessing
 
-The EDA stage loads the participant-characteristics table and EEG spreadsheet files, checks data quality, reshapes the EEG measurements into a participant-level table, constructs the three-class target, and exports the clean modeling dataset.
+The `EDA.ipynb` notebook loads the participant-characteristics table and EEG spreadsheet files, checks data quality, reshapes the EEG measurements into a participant-level table, constructs the three-class target, and exports the clean modeling dataset.
 
-The EDA notebook includes:
+The EDA workflow includes:
 
 - Participant metadata inspection
 - Data-type and dimensionality checks
@@ -84,14 +84,14 @@ The EDA notebook includes:
 - EEG band-frequency summaries, where applicable
 - Descriptive outlier analysis
 - Descriptive correlation analysis
-- Feature heatmaps
+- EEG feature heatmaps
 - Export of the final participant-level modeling table
 
-The descriptive analyses are not treated as evidence of clinical causation. Questionnaire scores are not used as predictive EEG inputs.
+The descriptive analyses are not treated as evidence of clinical causation. BDI-II and PHQ-9 scores are not used as predictive EEG features.
 
 ### Modeling
 
-The modeling workflow uses a stratified participant-level train/test split. The training portion is used for model comparison and hyperparameter tuning, while the test participants remain untouched until final evaluation.
+The `Modeling.ipynb` notebook uses a stratified participant-level train/test split. The training portion is used for model comparison and hyperparameter tuning, while the test participants remain untouched until final evaluation.
 
 The final pipeline is:
 
@@ -101,7 +101,7 @@ SimpleImputer(strategy="median")
 SelectKBest feature selection
         ↓
 ExtraTreesClassifier(class_weight="balanced")
-Imputation and feature selection are placed inside the scikit-learn pipeline. Therefore, these operations are fitted separately within each training fold during cross-validation rather than using information from the full dataset.
+Imputation and feature selection are placed inside the scikit-learn pipeline. These operations are therefore fitted within the training data and cross-validation folds rather than using information from the full dataset.
 Baseline comparison models include:
 Logistic Regression
 Support Vector Machine
@@ -117,26 +117,22 @@ Feature selection is fitted inside the modeling pipeline.
 Hyperparameter tuning uses training data and cross-validation only.
 BDI-II and PHQ-9 scores are excluded from the EEG feature matrix.
 Held-out test metrics and repeated-split stability estimates are reported separately.
-Repository Structure
-The recommended project organization is:
+Project Structure
+The project is organized as follows:
 text
 EEG_Depression_Project/
 │
-├── README.md
+├── eda_figures/
+│   └── EDA figures and visualizations
 │
-├── EDA/
-│   ├── 01_EDA_Preprocessing_Professional.ipynb
-│   ├── Eyes-closed EEG.xlsx
-│   ├── Eyes-open EEG.xlsx
-│   ├── Participant characteristics.xlsx
-│   ├── final_df.csv
-│   └── eda_figures/
+├── Images/
+│   └── Project, report, and presentation images
 │
-├── Modeling/
-│   ├── Modeling.ipynb
-│   ├── final_df.csv
-│   ├── final_participant_predictions.csv
-│   └── final_model_summary.csv
+├── Presentation/
+│   └── Final presentation files
+│
+├── Report/
+│   └── Final project report files
 │
 ├── Streamlit_Demo/
 │   ├── app.py
@@ -144,30 +140,31 @@ EEG_Depression_Project/
 │   ├── README.md
 │   └── final_df.csv
 │
-├── Reports/
-│   ├── Report_of_AICompetition_Final.docx
-│   └── AI_Driven_Depression_Diagnostics_Fact_Checked.pptx
-│
-└── figures/
-    └── exported publication-ready figures
-The eyes-open file may be retained for data documentation or future analysis, but the current reported model uses the eyes-closed condition only.
+├── EDA.ipynb
+├── Modeling.ipynb
+├── Eyes-closed EEG.xlsx
+├── Eyes-open EEG.xlsx
+├── Participant characteristics.xlsx
+├── final_df.csv
+└── final_participant_predictions.csv
+The project keeps the EDA notebook, modeling notebook, input spreadsheets, output CSV files, figures, report, presentation, and Streamlit application in the existing project structure shown above.
+The current reported model uses the eyes-closed EEG file only. The eyes-open EEG file is retained as an additional dataset file for documentation or possible future analysis.
 Reproducing the Analysis
 1. Run EDA and preprocessing
-Open:
+Open the following notebook from the project root:
 text
-EDA/01_EDA_Preprocessing_Professional.ipynb
-Run the notebook from top to bottom. Update the input paths in the configuration section if the spreadsheet files are stored elsewhere. The notebook exports the cleaned participant-level dataset, typically as:
+EDA.ipynb
+Run the cells from top to bottom. The notebook reads the EEG spreadsheets and participant-characteristics file from the project directory. It produces the cleaned participant-level modeling dataset:
 text
-EDA/final_df.csv
+final_df.csv
 2. Run modeling
 Open:
 text
-Modeling/Modeling.ipynb
-Make sure that the notebook can access final_df.csv. Run the cells in order. The notebook produces model metrics, classification reports, confusion matrices, participant-level predictions, and summary tables.
-Expected output files include:
+Modeling.ipynb
+Make sure that final_df.csv is available in the project root. Run the notebook cells in order. The notebook produces model metrics, classification reports, confusion matrices, participant-level predictions, and stability results.
+The participant-level prediction output is saved as:
 text
-Modeling/final_participant_predictions.csv
-Modeling/final_model_summary.csv
+final_participant_predictions.csv
 Running the Streamlit Demo
 The Streamlit application is an interactive research demonstration. It displays a model prediction and class probabilities for participant-level EEG features. It must not be used for diagnosis or treatment decisions.
 Windows PowerShell
